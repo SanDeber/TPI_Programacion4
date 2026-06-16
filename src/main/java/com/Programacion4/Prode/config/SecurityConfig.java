@@ -31,6 +31,7 @@ public class SecurityConfig {
             .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
                 // --- rutas públicas ---
+                .requestMatchers("/h2-console/**").permitAll()
                 .requestMatchers("/api/auth/**").permitAll()
 
                 // --- solo ADMIN puede crear, actualizar o eliminar ---
@@ -44,6 +45,9 @@ public class SecurityConfig {
 
                 // cualquier otra cosa requiere estar autenticado
                 .anyRequest().authenticated()
+            )
+            .headers(headers -> headers
+                .frameOptions(frame -> frame.disable())
             )
             .addFilterBefore(jwtFilter,  UsernamePasswordAuthenticationFilter.class);
 
