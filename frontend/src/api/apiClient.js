@@ -60,9 +60,12 @@ function extractErrorMessage(body, fallback) {
  * @param {object} options - mismas opciones que fetch (method, body, etc.)
  */
 export async function apiRequest(path, options = {}) {
+  const token = localStorage.getItem("predigol_token");
+
   const response = await fetch(`${API_BASE_URL}${path}`, {
     headers: {
       "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...(options.headers ?? {}),
     },
     ...options,

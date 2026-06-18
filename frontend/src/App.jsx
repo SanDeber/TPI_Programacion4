@@ -1,30 +1,14 @@
 import { Navigate, Route, Routes } from "react-router-dom";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
-import HomePage from "./pages/HomePage";
+import DashboardPage from "./pages/DashboardPage";
+import AdminPage from "./pages/AdminPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 
-// Hojas de estilo de cada sección. Se importan acá (una sola vez)
-// para que estén disponibles en toda la app.
 import "./styles/auth.css";
 import "./styles/home.css";
+import "./styles/dashboard.css";
 
-// ============================================================
-// App.jsx
-// ============================================================
-// Define las rutas (páginas) de la aplicación:
-//
-//   /login    -> LoginPage     (pública)
-//   /registro -> RegisterPage  (pública)
-//   /         -> HomePage      (protegida: requiere estar logueado)
-//
-// Cualquier otra ruta no definida redirige a "/".
-//
-// A medida que se agreguen más pantallas (equipos, fechas,
-// pronósticos, ranking, etc.), simplemente se agregan más
-// <Route> acá. Las que necesiten login van adentro del
-// <Route element={<ProtectedRoute />}>.
-// ============================================================
 export default function App() {
   return (
     <Routes>
@@ -32,13 +16,17 @@ export default function App() {
       <Route path="/login" element={<LoginPage />} />
       <Route path="/registro" element={<RegisterPage />} />
 
-      {/* Rutas protegidas (requieren JWT válido en el AuthContext) */}
+      {/* Rutas protegidas: requieren JWT válido */}
       <Route element={<ProtectedRoute />}>
-        <Route path="/" element={<HomePage />} />
+        <Route path="/" element={<DashboardPage />} />
       </Route>
 
-      {/* Cualquier ruta desconocida -> redirige a la home
-          (que a su vez redirige a /login si no hay sesión) */}
+      {/* Rutas solo para ADMIN: redirige a "/" si el rol no es ROLE_ADMIN */}
+      <Route element={<ProtectedRoute requiredRol="ROLE_ADMIN" />}>
+        <Route path="/admin" element={<AdminPage />} />
+      </Route>
+
+      {/* Ruta no definida → home (que redirige a /login si no hay sesión) */}
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );

@@ -4,26 +4,33 @@ import { useAuth } from "../context/AuthContext";
 // ============================================================
 // ProtectedRoute.jsx
 // ============================================================
-// Componente "guardia" para rutas que requieren estar logueado.
-// Se usa envolviendo rutas en App.jsx:
+// Guardia de rutas con soporte para autenticación y rol.
 //
+// Uso básico (solo requiere estar logueado):
 //   <Route element={<ProtectedRoute />}>
 //     <Route path="/" element={<HomePage />} />
 //   </Route>
 //
-// Si no hay token (isAuthenticated === false), redirige a
-// "/login" y guarda en el state la ruta a la que el usuario
-// quería entrar, para volver ahí después de loguearse
-// (ver LoginPage.jsx, usa location.state.from).
+// Uso con rol (solo ROLE_ADMIN puede entrar):
+//   <Route element={<ProtectedRoute requiredRol="ROLE_ADMIN" />}>
+//     <Route path="/admin" element={<AdminPage />} />
+//   </Route>
 //
-// Si hay token, renderiza la ruta hija normalmente (<Outlet />).
+// Flujo:
+//   1. Sin token → redirige a /login (guarda la ruta original en state.from)
+//   2. Con token pero rol incorrecto → redirige a /
+//   3. Todo OK → renderiza la ruta hija (<Outlet />)
 // ============================================================
-export default function ProtectedRoute() {
-  const { isAuthenticated } = useAuth();
+export default function ProtectedRoute({ requiredRol } = {}) {
+  const { isAuthenticated, rol } = useAuth();
   const location = useLocation();
 
   if (!isAuthenticated) {
     return <Navigate to="/login" state={{ from: location.pathname }} replace />;
+  }
+
+  if (requiredRol && rol !== requiredRol) {
+    return <Navigate to="/" replace />;
   }
 
   return <Outlet />;
