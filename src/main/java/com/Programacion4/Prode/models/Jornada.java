@@ -19,8 +19,6 @@ public class Jornada {
 
     private boolean eliminado;
 
-    private boolean isAsignada;
-
     @Enumerated(EnumType.STRING)
     private EstadoJornada estado;
 }

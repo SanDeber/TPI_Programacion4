@@ -35,6 +35,8 @@ public class User implements UserDetails{
     private String password;
     private String email;
 
+    private int puntos = 0;
+
     @Enumerated(EnumType.STRING)
     private Rol rol;
 

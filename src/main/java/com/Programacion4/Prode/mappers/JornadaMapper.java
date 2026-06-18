@@ -12,7 +12,6 @@ public class JornadaMapper {
         return Jornada.builder()
                 .name(dto.name())
                 .eliminado(false)
-                .isAsignada(false)
                 .estado(EstadoJornada.PROGRAMADA)
                 .build();
     }
@@ -20,7 +19,6 @@ public class JornadaMapper {
     public static JornadaResponseDto toResponse(Jornada jornada){
         return new JornadaResponseDto(jornada.getId(),
                 jornada.getName(),
-                jornada.getEstado().name(),
-                jornada.isAsignada());
+                jornada.getEstado().name());
     }
 }

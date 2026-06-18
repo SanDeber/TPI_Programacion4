@@ -23,6 +23,10 @@ public class TeamGetServices implements ITeamGetServices{
 
         Equipo equipoEncontrado = teamRepository.findById(id).orElseThrow(()-> new RuntimeException("El equipo no fue encontrado."));
 
+        if(equipoEncontrado.isEliminado()){
+            throw new RuntimeException("Este id se encuentra eliminado.");
+        }
+
         return EquipoMapper.toResponse(equipoEncontrado);
     }
 
@@ -30,16 +34,22 @@ public class TeamGetServices implements ITeamGetServices{
     public List<EquipoResponse> getEquipos(String name) {
 
         if (name == null || name.isEmpty()) {
-            List<Equipo> equiposEncontrados = teamRepository.findAll();
+            List<Equipo> equiposEncontrados = teamRepository.findAll()
+                    .stream()
+                    .filter(equipo -> !equipo.isEliminado())
+                    .toList();
 
             if (equiposEncontrados.isEmpty()) {
-                throw new RuntimeException("No se encontro ningun equipo.");
+                throw new RuntimeException("No se encontro ningun equipo o estan eliminado.");
             }
 
             return equiposEncontrados.stream().map(EquipoMapper::toResponse).toList();
         }
 
-        List<Equipo> equiposPorNombre = teamRepository.findByNameContainingIgnoreCase(name);
+        List<Equipo> equiposPorNombre = teamRepository.findByNameContainingIgnoreCase(name)
+                .stream()
+                .filter(equipo -> !equipo.isEliminado())
+                .toList();
 
         if(equiposPorNombre.isEmpty()){
             throw new RuntimeException("No se encontro ningun equipo con este nombre.");
