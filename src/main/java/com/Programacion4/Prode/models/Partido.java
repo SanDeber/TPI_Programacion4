@@ -33,6 +33,10 @@ public class Partido {
     @JoinColumn(name = "equipo_visitante_id")
     private Equipo equipoVisitante;
 
+    private Integer golLocal = 0;
+
+    private Integer golVisitante = 0;
+
     @Enumerated(EnumType.STRING)
     private EstadoPartido estado;
 
