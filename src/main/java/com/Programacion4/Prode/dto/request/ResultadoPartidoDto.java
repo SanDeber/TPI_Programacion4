@@ -1,7 +1,6 @@
 package com.Programacion4.Prode.dto.request;
 
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
 
 public record ResultadoPartidoDto(

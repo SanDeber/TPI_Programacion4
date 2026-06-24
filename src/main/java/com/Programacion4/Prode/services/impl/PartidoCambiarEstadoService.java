@@ -1,6 +1,5 @@
 package com.Programacion4.Prode.services.impl;
 
-import com.Programacion4.Prode.models.EstadoJornada;
 import com.Programacion4.Prode.models.EstadoPartido;
 import com.Programacion4.Prode.models.Jornada;
 import com.Programacion4.Prode.models.Partido;
@@ -17,7 +16,6 @@ import org.springframework.stereotype.Service;
 public class PartidoCambiarEstadoService implements IPartidoCambiarEstadoService {
 
     private final IPartidoRepository partidoRepository;
-    private final IJornadaRepository jornadaRepository;
     private final CalcularEstadoJornada estadoJornada;
 
     @Override
