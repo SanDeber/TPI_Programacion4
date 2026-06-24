@@ -16,6 +16,8 @@ public interface IPartidoRepository extends JpaRepository<Partido, Long> {
 
     List<Partido> findByEliminadoFalse();
 
+    List<Partido> findByJornadaId(Long jornadaId);
+
 
     @Query("""
     SELECT p
@@ -33,4 +35,14 @@ public interface IPartidoRepository extends JpaRepository<Partido, Long> {
              OR p.equipoVisitante.id = :equipoId)
     """)
     boolean existsEquipoInJornada(Long jornadaId, Long equipoId);
+
+    @Query("""
+    SELECT COUNT(p) > 0
+    FROM Partido p
+    WHERE p.jornada.id = :jornadaId
+      AND p.id <> :partidoId
+      AND p.eliminado = false
+      AND (p.equipoLocal.id = :equipoId OR p.equipoVisitante.id = :equipoId)
+""")
+    boolean existsEquipoInJornadaExcluyendoPartido(Long jornadaId, Long partidoId, Long equipoId);
 }

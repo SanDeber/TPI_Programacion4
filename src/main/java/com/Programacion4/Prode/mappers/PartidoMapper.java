@@ -25,7 +25,9 @@ public class PartidoMapper {
                 p.getId(),
                 JornadaMapper.toResponse(p.getJornada()),
                 EquipoMapper.toResponse(p.getEquipoLocal()),
+                p.getGolLocal(),
                 EquipoMapper.toResponse(p.getEquipoVisitante()),
+                p.getGolVisitante(),
                 p.getEstado(),
                 p.getFechaHoraInicio()
         );

@@ -1,10 +1,13 @@
 package com.Programacion4.Prode.controller;
 
 import com.Programacion4.Prode.config.BaseResponse;
+import com.Programacion4.Prode.dto.request.JornadaActualizar;
 import com.Programacion4.Prode.dto.request.JornadaRequestDto;
 import com.Programacion4.Prode.dto.response.JornadaResponseDto;
 import com.Programacion4.Prode.models.EstadoJornada;
+import com.Programacion4.Prode.services.interfaces.IJornadaActualizarService;
 import com.Programacion4.Prode.services.interfaces.IJornadaCreateService;
+import com.Programacion4.Prode.services.interfaces.IJornadaDeleteService;
 import com.Programacion4.Prode.services.interfaces.IJornadaGetService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +25,8 @@ public class JornadaController {
 
     private final IJornadaCreateService createService;
     private final IJornadaGetService getService;
+    private final IJornadaActualizarService actualizarService;
+    private final IJornadaDeleteService deleteService;
 
     @PostMapping()
     @PreAuthorize("hasRole('ADMIN')")
@@ -42,5 +47,30 @@ public class JornadaController {
                 )
         );
     }
-    
+
+    @PatchMapping()
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<BaseResponse<JornadaResponseDto>> actualizar(
+            @RequestBody @Valid JornadaActualizar dto
+            ){
+        return ResponseEntity.ok().body(
+                BaseResponse.ok(
+                    actualizarService.actualizar(dto),
+                        "Jornada Actualizada con exito."
+                )
+        );
+    }
+
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<BaseResponse<?>> softDelete(
+            @PathVariable Long id
+    ){
+
+        deleteService.softDelete(id);
+
+        return ResponseEntity.ok().body(
+                BaseResponse.noContent("Jornada Eliminada con exito")
+        );
+    }
 }

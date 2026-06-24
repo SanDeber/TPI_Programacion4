@@ -12,8 +12,8 @@ public record EquipoCreateRequestDTO(
     
     @NotBlank(message = "El link del escudo no puede estar vacío")
     @Pattern(
-        regexp = "^(https?:\\/\\/).+\\.(jpg|jpeg|png|gif|webp|svg)$",
-        message = "Debe ingresar un link válido para el escudo"
+            regexp = "^(https?:\\/\\/)[^\\s]+$",
+            message = "La imagen debe ser una URL válida"
     )
     String escudo
 

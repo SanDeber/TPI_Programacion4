@@ -44,4 +44,6 @@ public class Partido {
 
     private LocalDateTime fechaHoraInicio;
 
+    private LocalDateTime horaLimitePronostico;
+
 }

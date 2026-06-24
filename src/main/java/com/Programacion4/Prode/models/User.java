@@ -18,6 +18,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnDefault;
 
 @Entity
 @AllArgsConstructor
@@ -35,7 +36,13 @@ public class User implements UserDetails{
     private String password;
     private String email;
 
-    private int puntos = 0;
+    @Builder.Default
+    @ColumnDefault("0")
+    private Integer cantidadExactos = 0;
+
+    @Builder.Default
+    @ColumnDefault("0")
+    private Integer puntos = 0;
 
     @Enumerated(EnumType.STRING)
     private Rol rol;
@@ -43,6 +50,9 @@ public class User implements UserDetails{
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
+        if (rol == null) {
+            return List.of(new SimpleGrantedAuthority(Rol.ROLE_USER.name()));
+        }
         return List.of(new SimpleGrantedAuthority(rol.name()));
     }
 

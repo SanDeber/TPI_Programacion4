@@ -3,6 +3,7 @@ package com.Programacion4.Prode.services.impl;
 import com.Programacion4.Prode.models.EstadoPartido;
 import com.Programacion4.Prode.models.Partido;
 import com.Programacion4.Prode.repository.IPartidoRepository;
+import com.Programacion4.Prode.repository.IPronosticoRepository;
 import com.Programacion4.Prode.services.interfaces.IPartidoDeleteService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 public class PartidoDeleteService implements IPartidoDeleteService {
 
     private final IPartidoRepository repository;
+    private final IPronosticoRepository pronosticoRepository;
 
     @Override
     public void deletePartido(Long id) {
@@ -20,6 +22,10 @@ public class PartidoDeleteService implements IPartidoDeleteService {
 
         if (partidoEncontrado.getEstado() != EstadoPartido.POR_JUGARSE){
             throw new RuntimeException("El partido no se puede eliminar porque esta en juego o ya finalizo");
+        }
+
+        if (pronosticoRepository.existsByPartidoId_Id(id)){
+            throw new RuntimeException("El partido tiene un pronostico asignado no puede ser eliminado");
         }
 
         partidoEncontrado.setEliminado(true);

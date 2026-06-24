@@ -10,4 +10,6 @@ import com.Programacion4.Prode.models.Equipo;
 public interface  IEquipoRepository  extends JpaRepository<Equipo, Long>{
     List<Equipo> findByNameContainingIgnoreCase(String name);
     Optional<Equipo> findByName(String name);
+
+    Optional<Equipo> findByIdAndEliminadoFalse(Long id);
 }

@@ -12,4 +12,6 @@ public interface IJornadaRepository extends JpaRepository<Jornada, Long> {
     List<Jornada> findByEliminadoFalse();
 
     List<Jornada> findByEliminadoFalseAndEstado(EstadoJornada estado);
+
+    Optional<Jornada> findByIdAndEliminadoFalse(Long jornadaId);
 }

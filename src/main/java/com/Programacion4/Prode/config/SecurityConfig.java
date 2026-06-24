@@ -33,12 +33,12 @@ public class SecurityConfig {
                 // --- rutas públicas ---
                 .requestMatchers("/h2-console/**").permitAll()
                 .requestMatchers("/api/auth/**").permitAll()
-
                 // --- solo ADMIN puede crear, actualizar o eliminar ---
-                .requestMatchers(HttpMethod.POST,   "/api/**").hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.POST, "/api/pronosticos/**").hasRole("USER")
+                    .requestMatchers(HttpMethod.POST, "/api/grupos/**").hasRole("USER")
+                    .requestMatchers(HttpMethod.POST,   "/api/**").hasAnyRole("ADMIN")
                 .requestMatchers(HttpMethod.PUT,    "/api/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.DELETE, "/api/**").hasRole("ADMIN")
-
                 // --- ADMIN y USER pueden hacer GET y PATCH ---
                 .requestMatchers(HttpMethod.GET,    "/api/**").hasAnyRole("ADMIN", "USER")
                 .requestMatchers(HttpMethod.PATCH,  "/api/**").hasAnyRole("ADMIN", "USER")

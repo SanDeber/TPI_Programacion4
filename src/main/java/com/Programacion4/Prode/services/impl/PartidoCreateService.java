@@ -1,5 +1,6 @@
 package com.Programacion4.Prode.services.impl;
 
+import com.Programacion4.Prode.Utils.CalcularHoraLimiteDelPronostico;
 import com.Programacion4.Prode.dto.request.PartidoRequestDto;
 import com.Programacion4.Prode.dto.response.PartidoResponseDto;
 import com.Programacion4.Prode.mappers.PartidoMapper;
@@ -23,6 +24,7 @@ public class PartidoCreateService implements IPartidoCreateService {
     private final IPartidoRepository partidoRepository;
     private final IEquipoRepository equipoRepository;
     private final IJornadaRepository jornadaRepository;
+    private final CalcularHoraLimiteDelPronostico calcularHoraLimiteDelPronostico;
 
 
 
@@ -65,6 +67,8 @@ public class PartidoCreateService implements IPartidoCreateService {
 
 
         Partido partido = PartidoMapper.toEntity(dto, jornada, equipoLocal, equipoVisitante);
+
+        partido.setHoraLimitePronostico(calcularHoraLimiteDelPronostico.calcular(partido.getFechaHoraInicio()));
 
         partidoRepository.save(partido);
 

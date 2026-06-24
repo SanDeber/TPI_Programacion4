@@ -2,11 +2,12 @@ package com.Programacion4.Prode.controller;
 
 
 import com.Programacion4.Prode.config.BaseResponse;
+import com.Programacion4.Prode.dto.request.PartidoActualizarDto;
+import com.Programacion4.Prode.dto.request.PartidoEstadoRequestDto;
 import com.Programacion4.Prode.dto.request.PartidoRequestDto;
+import com.Programacion4.Prode.dto.request.ResultadoPartidoDto;
 import com.Programacion4.Prode.dto.response.PartidoResponseDto;
-import com.Programacion4.Prode.services.interfaces.IPartidoCreateService;
-import com.Programacion4.Prode.services.interfaces.IPartidoDeleteService;
-import com.Programacion4.Prode.services.interfaces.IPartidoGetService;
+import com.Programacion4.Prode.services.interfaces.*;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -24,6 +25,9 @@ public class PartidoController {
     private final IPartidoCreateService createService;
     private final IPartidoGetService getService;
     private final IPartidoDeleteService softDeleteService;
+    private final IPartidoActualizarService actualizarService;
+    private final IPartidoCambiarEstadoService cambiarEstadoService;
+    private final IPartidoResultadoService resultadoService;
 
     @PostMapping()
     @PreAuthorize("hasRole('ADMIN')")
@@ -48,6 +52,7 @@ public class PartidoController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<BaseResponse<?>> softDelete(
             @PathVariable Long id
     ){
@@ -59,4 +64,46 @@ public class PartidoController {
         );
     }
 
+    @PatchMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<BaseResponse<PartidoResponseDto>> actualizarPartido(
+            @RequestBody @Valid PartidoActualizarDto dto,
+            @PathVariable Long id
+            ){
+        return ResponseEntity.ok(
+                BaseResponse.ok(
+                        actualizarService.actualizar(dto,id),
+                        "El partido se actualizo con exito"
+                )
+        );
+    }
+
+    @PatchMapping("/{id}/estado")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<BaseResponse<?>> cambiarEstado(
+            @PathVariable Long id,
+            @RequestBody PartidoEstadoRequestDto estado
+            ){
+
+        cambiarEstadoService.cambiarEstado(estado.estado(), id);
+
+        return ResponseEntity.ok().body(
+                BaseResponse.noContent("Se actualizo el estado con exito")
+        );
+    }
+
+    @PatchMapping("/{id}/resultado")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<BaseResponse<PartidoResponseDto>> cargarResultado(
+            @RequestBody ResultadoPartidoDto dto,
+            @PathVariable Long id
+
+    ){
+        return ResponseEntity.ok().body(
+                BaseResponse.ok(
+                    resultadoService.resultado(id, dto.golesLocales(), dto.golesVisitantes()),
+                        "Los resultados fueron subidos con exito"
+                )
+        );
+    }
 }
