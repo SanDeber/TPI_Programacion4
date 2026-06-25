@@ -1,0 +1,297 @@
+/* ============================================================
+   auth.css — Estilos de las pantallas de Login y Registro
+   ============================================================
+   Todo lo de acá usa las variables definidas en index.css
+   (colores, radios, sombras). Si cambian la paleta global, estos
+   estilos se actualizan solos.
+   ============================================================ */
+
+/* ---------- Layout general: dos paneles lado a lado ---------- */
+
+.auth-page {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* Panel izquierdo: marca + dibujo de cancha de fondo */
+.auth-hero {
+  position: relative;
+  flex: 1 1 45%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-bg-soft);
+  overflow: hidden;
+  padding: 3rem;
+}
+
+/* El SVG de PitchBackground se estira para cubrir todo el panel,
+   detrás del contenido (logo + frase) */
+.pitch-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* Contenido del panel izquierdo, por encima del dibujo */
+.auth-hero__content {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  max-width: 360px;
+}
+
+.auth-hero__logo {
+  width: min(220px, 60%);
+  /* El logo tiene fondo negro propio; le damos un radio suave
+     para que no se vea como un cuadrado pegado en la página */
+  border-radius: var(--radius-md);
+}
+
+.auth-hero__tagline {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  line-height: 1.5;
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+/* Resaltamos algunas palabras de la frase con el acento cian.
+   Se usa envolviendo el texto en <span className="accent"> */
+.auth-hero__tagline .accent {
+  color: var(--color-cyan);
+  font-weight: 600;
+}
+
+/* Panel derecho: formulario */
+.auth-form-panel {
+  flex: 1 1 55%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  background: var(--color-bg);
+}
+
+/* ---------- Tarjeta del formulario ---------- */
+
+.auth-card {
+  width: 100%;
+  max-width: 440px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 2.5rem;
+  box-shadow: var(--shadow-card);
+}
+
+.auth-card__title {
+  font-family: var(--font-display);
+  font-size: 1.75rem;
+  margin: 0 0 0.5rem;
+}
+
+.auth-card__subtitle {
+  color: var(--color-text-muted);
+  margin: 0 0 2rem;
+  font-size: 0.95rem;
+}
+
+/* ---------- Campos de formulario ---------- */
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-bottom: 1.25rem;
+}
+
+.form-field__label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  letter-spacing: 0.02em;
+}
+
+.form-field__input {
+  background: var(--color-surface-alt);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 0.8rem 1rem;
+  font-size: 1rem;
+  color: var(--color-text);
+  font-family: var(--font-body);
+  transition: border-color var(--transition-base), box-shadow var(--transition-base);
+}
+
+.form-field__input::placeholder {
+  color: var(--color-text-muted);
+  opacity: 0.6;
+}
+
+/* Estado focus: borde cian + halo suave */
+.form-field__input:focus {
+  outline: none;
+  border-color: var(--color-cyan);
+  box-shadow: 0 0 0 3px var(--color-cyan-soft);
+}
+
+/* Estado con error: borde rosado/rojo */
+.form-field__input--error {
+  border-color: var(--color-danger);
+}
+
+.form-field__input--error:focus {
+  box-shadow: 0 0 0 3px var(--color-danger-soft);
+}
+
+.form-field__error {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--color-danger);
+}
+
+/* Banner de error general del formulario (ej. credenciales inválidas,
+   email ya registrado, error de conexión, etc.) */
+.form-error-banner {
+  background: var(--color-danger-soft);
+  border: 1px solid var(--color-danger);
+  color: #ffd7de;
+  border-radius: var(--radius-sm);
+  padding: 0.75rem 1rem;
+  font-size: 0.9rem;
+  margin-bottom: 1.25rem;
+}
+
+/* Banner de éxito general del formulario (ej. equipo creado) */
+.form-success-banner {
+  background: rgba(108, 194, 74, 0.12);
+  border: 1px solid var(--color-green);
+  color: var(--color-green);
+  border-radius: var(--radius-sm);
+  padding: 0.75rem 1rem;
+  font-size: 0.9rem;
+  margin-bottom: 1.25rem;
+}
+
+/* ---------- Botones ---------- */
+
+.btn {
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  padding: 0.85rem 1.25rem;
+  font-size: 1rem;
+  font-weight: 600;
+  font-family: var(--font-body);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: transform var(--transition-base), filter var(--transition-base),
+    background-color var(--transition-base), border-color var(--transition-base);
+}
+
+.btn:active {
+  transform: translateY(1px);
+}
+
+.btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.75;
+}
+
+/* Botón principal: relleno cian, texto oscuro para buen contraste */
+.btn--primary {
+  background: var(--color-cyan);
+  color: #06201c;
+}
+
+.btn--primary:hover:not(:disabled) {
+  filter: brightness(1.08);
+}
+
+/* Botón secundario: solo borde, para acciones alternativas
+   (ej. "Crear cuenta" dentro del form de login) */
+.btn--ghost {
+  background: transparent;
+  border-color: var(--color-border-strong);
+  color: var(--color-text);
+}
+
+.btn--ghost:hover:not(:disabled) {
+  border-color: var(--color-lavender);
+  color: var(--color-lavender);
+}
+
+/* Spinner simple para el estado "loading" del botón */
+.btn__spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 700ms linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ---------- Pie de la tarjeta (links a la otra pantalla) ---------- */
+
+.auth-card__footer {
+  margin-top: 1.75rem;
+  text-align: center;
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+}
+
+.auth-card__footer a {
+  color: var(--color-lavender);
+  font-weight: 600;
+}
+
+.auth-card__footer a:hover {
+  text-decoration: underline;
+}
+
+/* ---------- Responsive ---------- */
+
+/* Por debajo de 900px: apilamos los paneles. El panel izquierdo
+   pasa a ser un encabezado chico en vez de la mitad de la pantalla. */
+@media (max-width: 900px) {
+  .auth-page {
+    flex-direction: column;
+  }
+
+  .auth-hero {
+    flex: none;
+    padding: 2rem 1.5rem;
+    min-height: 220px;
+  }
+
+  .auth-hero__logo {
+    width: 140px;
+  }
+
+  .auth-hero__tagline {
+    font-size: 0.9rem;
+  }
+
+  .auth-form-panel {
+    padding: 1.5rem;
+  }
+
+  .auth-card {
+    padding: 1.75rem;
+  }
+}

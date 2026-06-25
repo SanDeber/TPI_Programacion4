@@ -1,0 +1,44 @@
+/* ============================================================
+   home.css — Estilos de la pantalla placeholder post-login
+   ============================================================ */
+
+.home-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  background: var(--color-bg);
+}
+
+.home-card {
+  width: 100%;
+  max-width: 420px;
+  text-align: center;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 2.5rem;
+  box-shadow: var(--shadow-card);
+}
+
+.home-card__logo {
+  width: 96px;
+  border-radius: var(--radius-md);
+  margin-bottom: 1.5rem;
+}
+
+.home-card h1 {
+  font-family: var(--font-display);
+  margin: 0 0 0.75rem;
+}
+
+.home-card p {
+  color: var(--color-text-muted);
+  line-height: 1.6;
+}
+
+.home-card__hint {
+  font-size: 0.85rem;
+  margin-bottom: 1.75rem;
+}

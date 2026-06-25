@@ -1,0 +1,88 @@
+/* ============================================================
+   index.css — Sistema de diseño global de Predigol
+   ============================================================
+   Acá vive la "identidad visual" de toda la app: colores,
+   tipografías, espaciados y estilos base. Si en algún momento
+   quieren cambiar la paleta o la tipografía, ESTE es el archivo
+   que hay que tocar primero (las variables de :root se usan en
+   todos los componentes).
+   ============================================================ */
+
+:root {
+  /* ---------- Color: paleta "cancha de noche" ----------
+     Fondo casi negro con tinte cian + acentos en cian y lavanda.
+     El verde es el mismo verde del isotipo (el "check") del logo,
+     se usa muy poco, solo para detalles de éxito/branding. */
+  --color-bg: #070d14;          /* fondo general de la página */
+  --color-bg-soft: #0b141d;     /* paneles grandes (ej. lado izq.) */
+  --color-surface: #101e2b;     /* tarjetas / formulario */
+  --color-surface-alt: #16293a; /* inputs, hover de tarjetas */
+  --color-border: rgba(255, 255, 255, 0.08);
+  --color-border-strong: rgba(255, 255, 255, 0.16);
+
+  --color-cyan: #35e0c9;        /* acento principal (botones, links) */
+  --color-cyan-soft: rgba(53, 224, 201, 0.14);
+  --color-lavender: #a78bfa;    /* acento secundario (detalles, focus) */
+  --color-lavender-soft: rgba(167, 139, 250, 0.14);
+  --color-green: #6cc24a;       /* verde del logo, uso puntual */
+
+  --color-text: #eaf2f4;        /* texto principal */
+  --color-text-muted: #80969f;  /* texto secundario / placeholders */
+  --color-danger: #ff6b81;      /* errores */
+  --color-danger-soft: rgba(255, 107, 129, 0.12);
+
+  /* ---------- Tipografía ----------
+     Por ahora usamos una pila de fuentes "de sistema" prolija.
+     Cuando decidan la tipografía definitiva, alcanza con cambiar
+     estas dos variables (display = títulos/logo, body = texto). */
+  --font-display: "Poppins", "Segoe UI", system-ui, sans-serif;
+  --font-body: "Inter", "Segoe UI", system-ui, sans-serif;
+
+  /* ---------- Layout / espaciado ---------- */
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 24px;
+  --shadow-card: 0 20px 60px -20px rgba(0, 0, 0, 0.6);
+  --transition-base: 160ms ease;
+}
+
+/* Reset básico: que el box-model sea consistente en todo el proyecto */
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Quitamos el estilo por defecto de los links, cada componente
+   decide cómo se ven sus propios enlaces */
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* Foco visible para accesibilidad (navegación con teclado).
+   Usamos el color lavanda para diferenciarlo del acento cian. */
+:focus-visible {
+  outline: 2px solid var(--color-lavender);
+  outline-offset: 2px;
+}
+
+/* Respeta la preferencia del usuario de reducir animaciones */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
