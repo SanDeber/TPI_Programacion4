@@ -21,7 +21,7 @@ import { useAuth } from "../context/AuthContext";
 //   2. Con token pero rol incorrecto → redirige a /
 //   3. Todo OK → renderiza la ruta hija (<Outlet />)
 // ============================================================
-export default function ProtectedRoute({ requiredRol } = {}) {
+export default function ProtectedRoute({ requiredRol, forbiddenRol } = {}) {
   const { isAuthenticated, rol } = useAuth();
   const location = useLocation();
 
@@ -30,6 +30,10 @@ export default function ProtectedRoute({ requiredRol } = {}) {
   }
 
   if (requiredRol && rol !== requiredRol) {
+    return <Navigate to="/" replace />;
+  }
+
+  if (forbiddenRol && rol === forbiddenRol) {
     return <Navigate to="/" replace />;
   }
 

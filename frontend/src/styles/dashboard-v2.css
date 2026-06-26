@@ -1,0 +1,1228 @@
+/* ============================================================
+   dashboard-v2.css — Dashboard "marcador en vivo"
+   ============================================================
+   Estructura nueva de DashboardPage (sidebar + columnas + rail de
+   posiciones). Usa las variables de index.css. Todas las clases
+   tienen el prefijo "dv-" para no pisar nada de dashboard.css
+   (que sigue en uso por AdminPage y GruposPage).
+   ============================================================ */
+
+.dv-shell {
+  min-height: 100vh;
+  display: flex;
+  background: var(--color-bg);
+}
+
+/* ---------- Loading screen (Dashboard, Mis pronósticos) ---------- */
+/* @keyframes spin ya está definido en auth.css (es global). */
+
+.dashboard-loading {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-bg);
+}
+
+.dashboard-loading__spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--color-border-strong);
+  border-top-color: var(--color-cyan);
+  border-radius: 50%;
+  animation: spin 700ms linear infinite;
+}
+
+/* ---------- Leaderboard (rail del Dashboard y ranking de Grupos) ---------- */
+
+.leaderboard-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.leaderboard-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.55rem 0.625rem;
+  border-radius: var(--radius-sm);
+  transition: background var(--transition-base);
+}
+
+.leaderboard-item:hover {
+  background: var(--color-surface-alt);
+}
+
+.leaderboard-item__rank {
+  font-family: var(--font-display);
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--color-text-muted);
+  width: 1.75rem;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.leaderboard-item__rank--gold {
+  color: #fbbf24;
+}
+.leaderboard-item__rank--silver {
+  color: #94a3b8;
+}
+.leaderboard-item__rank--bronze {
+  color: #b45309;
+}
+
+.leaderboard-item__name {
+  flex: 1;
+  font-size: 0.875rem;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.leaderboard-item__points {
+  font-family: var(--font-display);
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--color-lavender);
+  flex-shrink: 0;
+}
+
+/* ---------- Sidebar ---------- */
+
+.dv-sidebar {
+  width: 230px;
+  flex-shrink: 0;
+  background: var(--color-bg-soft);
+  border-right: 1px solid var(--color-border);
+  padding: 1.5rem 1.1rem;
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+}
+
+.dv-logo {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.05rem;
+  letter-spacing: 2px;
+  color: var(--color-cyan);
+  margin-bottom: 1.75rem;
+}
+
+.dv-profile {
+  text-align: center;
+  margin-bottom: 0.5rem;
+}
+
+.dv-avatar {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background: linear-gradient(145deg, var(--color-cyan), var(--color-lavender));
+  color: #04201b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.05rem;
+  margin: 0 auto 0.6rem;
+  box-shadow: 0 0 0 3px var(--color-cyan-soft);
+}
+
+.dv-profile-name {
+  font-size: 0.9rem;
+  font-weight: 600;
+  font-family: var(--font-display);
+}
+
+.dv-rank-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 0.5rem;
+  font-family: var(--font-mono);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  color: var(--color-cyan);
+  padding: 0.25rem 0.65rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+}
+
+.dv-nav {
+  margin-top: 1.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.dv-nav-link {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 0.6rem 0.7rem;
+  font-size: 0.8rem;
+  font-family: var(--font-body);
+  color: var(--color-text-muted);
+  background: transparent;
+  border: none;
+  border-left: 2px solid transparent;
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  cursor: pointer;
+  transition: background var(--transition-base), color var(--transition-base),
+    border-color var(--transition-base);
+}
+
+.dv-nav-link:hover {
+  color: var(--color-text);
+  background: var(--color-surface);
+}
+
+.dv-nav-link--active {
+  color: var(--color-text);
+  border-left-color: var(--color-cyan);
+  background: var(--color-surface);
+  cursor: default;
+}
+
+.dv-nav-label {
+  font-size: 0.62rem;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  font-weight: 700;
+  margin: 1rem 0 0.35rem 0.7rem;
+}
+
+.dv-logout {
+  margin-top: auto;
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+  background: transparent;
+  border: none;
+  padding: 0.6rem 0.7rem;
+  text-align: left;
+  cursor: pointer;
+  transition: color var(--transition-base);
+}
+
+.dv-logout:hover {
+  color: var(--color-danger);
+}
+
+/* ---------- Main ---------- */
+
+.dv-main {
+  flex: 1;
+  min-width: 0;
+  padding: 2rem;
+}
+
+.dv-greeting {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.5rem;
+  letter-spacing: 0.3px;
+  margin: 0 0 0.2rem;
+}
+
+.dv-greeting__accent {
+  color: var(--color-cyan);
+}
+
+.dv-sub {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  margin: 0 0 1.5rem;
+}
+
+.dv-cols {
+  display: grid;
+  grid-template-columns: 0.85fr 1.15fr;
+  gap: 1.1rem;
+  align-items: start;
+}
+
+.dv-col-left,
+.dv-col-right {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  min-width: 0;
+}
+
+/* ---------- Card genérica ---------- */
+
+.dv-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 1.1rem 1.25rem;
+  transition: border-color var(--transition-base), transform var(--transition-base);
+}
+
+.dv-card:hover {
+  border-color: var(--color-border-strong);
+}
+
+.dv-eyebrow {
+  font-size: 0.65rem;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  font-weight: 600;
+  margin: 0 0 0.65rem;
+}
+
+.dv-empty {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  padding: 0.4rem 0;
+}
+
+/* ---------- Filas de pronóstico (jornada anterior / últimos) ---------- */
+
+.dv-pred-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.55rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  font-size: 0.78rem;
+  transition: background var(--transition-fast);
+}
+
+.dv-pred-row:last-child {
+  border-bottom: none;
+}
+
+.dv-pred-row:hover {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.dv-pred-teams {
+  flex: 1;
+  min-width: 0;
+}
+
+.dv-pred-score {
+  font-family: var(--font-mono);
+  color: var(--color-text);
+  white-space: nowrap;
+}
+
+.dv-pred-badge {
+  font-size: 0.65rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: var(--radius-sm);
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+  font-family: var(--font-mono);
+}
+
+.dv-pred-badge--green {
+  background: var(--color-green);
+  color: #063d22;
+}
+
+.dv-pred-badge--lavender {
+  background: var(--color-lavender);
+  color: #241a4d;
+}
+
+.dv-pred-badge--muted {
+  background: var(--color-surface-alt);
+  color: var(--color-text-muted);
+}
+
+/* ---------- Filtros (Mis pronósticos) ---------- */
+
+.dv-filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.dv-filter {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 0.45rem 0.95rem;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: border-color var(--transition-base), color var(--transition-base),
+    background var(--transition-base);
+}
+
+.dv-filter:hover {
+  color: var(--color-text);
+  border-color: var(--color-border-strong);
+}
+
+.dv-filter--active {
+  background: var(--color-cyan-soft);
+  border-color: var(--color-cyan);
+  color: var(--color-cyan);
+}
+
+.dv-pred-score__mine {
+  color: var(--color-text-muted);
+  font-size: 0.7rem;
+}
+
+/* ---------- Rendimiento reciente (barras) ---------- */
+
+.dv-perf-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 0.6rem;
+}
+
+.dv-perf-label {
+  width: 72px;
+  flex-shrink: 0;
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+
+.dv-perf-bar-bg {
+  flex: 1;
+  height: 7px;
+  background: var(--color-surface-alt);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.dv-perf-bar {
+  height: 100%;
+  border-radius: 4px;
+  transition: width var(--transition-slow);
+}
+
+.dv-perf-bar--green {
+  background: var(--color-green);
+}
+
+.dv-perf-bar--lavender {
+  background: var(--color-lavender);
+}
+
+.dv-perf-bar--gray {
+  background: var(--color-text-muted);
+}
+
+.dv-perf-count {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  width: 18px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.dv-divider {
+  border-top: 1px solid var(--color-border);
+  margin: 1rem 0 0.75rem;
+}
+
+/* ---------- Próximo partido (feature card) ---------- */
+
+.dv-feature-card {
+  background: radial-gradient(circle at 50% 0%, var(--color-cyan-soft), transparent 60%),
+    var(--color-surface);
+  border: 1px solid var(--color-cyan);
+  border-radius: var(--radius-md);
+  padding: 1.75rem 1.75rem;
+  box-shadow: 0 0 28px -8px var(--color-cyan-soft);
+}
+
+.dv-feature-eyebrow {
+  font-size: 0.7rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--color-cyan);
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 1.1rem;
+}
+
+.dv-feature-matchup {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.75rem;
+}
+
+.dv-feature-team {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  text-align: center;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.4rem;
+  letter-spacing: 0.3px;
+}
+
+.dv-feature-vs {
+  font-family: var(--font-display);
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
+}
+
+.dv-feature-clock {
+  font-family: var(--font-mono);
+  color: var(--color-cyan);
+  font-size: 2.1rem;
+  letter-spacing: 2px;
+  text-align: center;
+  margin-top: 1.1rem;
+  animation: dv-pulse-glow 2s ease-in-out infinite;
+}
+
+.dv-feature-clock--closed {
+  color: var(--color-danger);
+  animation: none;
+}
+
+@keyframes dv-pulse-glow {
+  0%,
+  100% {
+    text-shadow: 0 0 12px var(--color-cyan-soft);
+  }
+  50% {
+    text-shadow: 0 0 22px var(--color-cyan-soft);
+  }
+}
+
+.dv-feature-clock-label {
+  text-align: center;
+  font-size: 0.65rem;
+  color: var(--color-text-muted);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  margin-top: 0.25rem;
+}
+
+.dv-feature-meta {
+  text-align: center;
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+  margin-top: 0.5rem;
+}
+
+.dv-btn-cyan {
+  display: block;
+  width: 220px;
+  margin: 1.4rem auto 0;
+  padding: 0.75rem;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: var(--color-cyan);
+  color: #04201b;
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 0.82rem;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  text-align: center;
+  cursor: pointer;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast),
+    background var(--transition-fast);
+}
+
+.dv-btn-cyan:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px -6px var(--color-cyan-soft);
+}
+
+.dv-btn-cyan:disabled {
+  background: var(--color-surface-alt);
+  color: var(--color-text-muted);
+  cursor: not-allowed;
+}
+
+/* Variante para botones de submit dentro de formularios "normales"
+   (Admin/Grupos), donde no queremos el ancho fijo centrado pensado
+   para la feature-card / el modal. */
+.dv-btn-cyan--inline {
+  width: auto;
+  display: inline-block;
+  margin: 0.25rem 0 0;
+}
+
+/* Variante chica para acciones dentro de filas de tabla (Admin). */
+.dv-btn-cyan--small {
+  padding: 0.4rem 0.75rem;
+  font-size: 0.68rem;
+  margin: 0;
+  white-space: nowrap;
+}
+
+.dv-row-resultado {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.dv-row-resultado__inputs {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.5rem;
+}
+
+.dv-row-resultado__field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.dv-row-resultado__field-label {
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.dv-row-resultado__sep {
+  color: var(--color-text-muted);
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  padding-bottom: 0.35rem;
+}
+
+.dv-row-resultado__btns {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.dv-row-resultado__input {
+  width: 60px;
+  background: var(--color-surface-alt);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  padding: 0.35rem 0.4rem;
+  color: var(--color-text);
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  text-align: center;
+  transition: border-color var(--transition-fast);
+}
+
+.dv-row-resultado__input:focus-visible {
+  outline: none;
+  border-color: var(--color-cyan);
+}
+
+.dv-row-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+/* ---------- Campos de formulario "crudos" (selects de Admin) ----------
+   FormField/auth.css ya cubre los <input> de texto con el mismo lenguaje
+   visual; esto es solo para los <select> de Admin, que no pasan por
+   FormField. */
+
+.dv-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-bottom: 1.25rem;
+}
+
+.dv-field__label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  letter-spacing: 0.02em;
+}
+
+.dv-field__input {
+  background: var(--color-surface-alt);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 0.8rem 1rem;
+  font-size: 1rem;
+  color: var(--color-text);
+  font-family: var(--font-body);
+  transition: border-color var(--transition-base), box-shadow var(--transition-base);
+}
+
+.dv-field__input:focus {
+  outline: none;
+  border-color: var(--color-cyan);
+  box-shadow: 0 0 0 3px var(--color-cyan-soft);
+}
+
+.dv-field__input--error {
+  border-color: var(--color-danger);
+}
+
+.dv-field__error {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--color-danger);
+}
+
+/* ---------- Escudos de equipo (con fallback) ---------- */
+
+.team-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  vertical-align: middle;
+}
+
+.team-badge__img {
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+  background: var(--color-surface-alt);
+}
+
+.team-badge__placeholder {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: linear-gradient(145deg, var(--color-cyan), var(--color-lavender));
+  color: #04201b;
+  font-family: var(--font-display);
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.team-badge__name {
+  white-space: nowrap;
+}
+
+/* ---------- Toast (feedback de acciones del Admin) ---------- */
+
+.dv-toast {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  max-width: 360px;
+  background: var(--color-surface);
+  border-radius: var(--radius-md);
+  padding: 0.9rem 1.1rem;
+  box-shadow: var(--shadow-card);
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  z-index: 60;
+  font-size: 0.82rem;
+  animation: dv-toast-in var(--transition-slow);
+}
+
+@keyframes dv-toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dv-toast--error {
+  border: 1px solid var(--color-danger);
+  color: #ffd7de;
+}
+
+.dv-toast--success {
+  border: 1px solid var(--color-green);
+  color: var(--color-green);
+}
+
+.dv-toast__message {
+  flex: 1;
+}
+
+.dv-toast__close {
+  background: none;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  font-size: 0.9rem;
+  line-height: 1;
+  opacity: 0.7;
+}
+
+.dv-toast__close:hover {
+  opacity: 1;
+}
+
+/* Botón de borrado chico para filas de tabla (Admin). */
+.dv-btn-danger--small {
+  padding: 0.4rem 0.75rem;
+  font-size: 0.68rem;
+  white-space: nowrap;
+  background: transparent;
+  border: 1px solid var(--color-danger);
+  color: var(--color-danger);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+.dv-btn-danger--small:hover:not(:disabled) {
+  background: var(--color-danger);
+  color: #2b0a0f;
+}
+
+.dv-btn-danger--small:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ---------- Tablas (listados de Admin) ---------- */
+
+.dv-table-wrap {
+  overflow-x: auto;
+}
+
+.dv-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 0.5rem;
+  font-size: 0.8rem;
+}
+
+.dv-table th {
+  text-align: left;
+  font-size: 0.62rem;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  font-weight: 700;
+  padding: 0.5rem 0.6rem;
+  border-bottom: 1px solid var(--color-border-strong);
+  white-space: nowrap;
+}
+
+.dv-table td {
+  padding: 0.55rem 0.6rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  color: var(--color-text);
+}
+
+.dv-table tr:last-child td {
+  border-bottom: none;
+}
+
+.dv-table tbody tr {
+  transition: background var(--transition-fast);
+}
+
+.dv-table tbody tr:hover {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.dv-table__muted {
+  color: var(--color-text-muted);
+}
+
+.dv-table__escudo {
+  width: 22px;
+  height: 22px;
+  border-radius: 4px;
+  object-fit: cover;
+  vertical-align: middle;
+  margin-right: 0.5rem;
+}
+
+/* ---------- Partidos pendientes agrupados por día ---------- */
+
+.dv-day-label {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: var(--color-lavender);
+  letter-spacing: 0.5px;
+  margin: 0.9rem 0 0.3rem;
+  text-transform: uppercase;
+}
+
+.dv-day-label:first-of-type {
+  margin-top: 0;
+}
+
+.dv-pending-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  padding: 0.6rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  transition: background var(--transition-fast);
+}
+
+.dv-pending-row:last-child {
+  border-bottom: none;
+}
+
+.dv-pending-row:hover {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.dv-pending-time {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  width: 44px;
+  flex-shrink: 0;
+}
+
+.dv-pending-teams {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 0.88rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.dv-pending-cta {
+  font-size: 0.7rem;
+  color: var(--color-lavender);
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  background: transparent;
+  border: 1px solid var(--color-lavender-soft);
+  padding: 0.3rem 0.7rem;
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background var(--transition-fast), border-color var(--transition-fast),
+    color var(--transition-fast);
+}
+
+.dv-pending-cta:hover {
+  background: var(--color-lavender-soft);
+  border-color: var(--color-lavender);
+  color: var(--color-text);
+}
+
+/* ---------- Rail de posiciones ---------- */
+
+.dv-rail {
+  width: 230px;
+  flex-shrink: 0;
+  background: var(--color-bg-soft);
+  border-left: 1px solid var(--color-border);
+  padding: 1.75rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  align-self: flex-start;
+  max-height: 100vh;
+  position: sticky;
+  top: 0;
+}
+
+.dv-rail-title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 0.95rem;
+  margin: 0 0 0.1rem;
+}
+
+.dv-rail-sub {
+  font-size: 0.7rem;
+  color: var(--color-text-muted);
+  margin: 0 0 1.1rem;
+}
+
+.dv-rail-list {
+  /* El alto depende de cuántas filas devuelva el leaderboard: no se
+     fuerza a estirarse, pero si hay muchas filas hace scroll interno
+     en vez de empujar el layout. */
+  overflow-y: auto;
+  max-height: calc(100vh - 13rem);
+}
+
+.dv-btn-outline {
+  display: block;
+  text-align: center;
+  margin-top: 1.1rem;
+  padding: 0.55rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border-strong);
+  background: transparent;
+  color: var(--color-lavender);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  cursor: pointer;
+  transition: background var(--transition-base), border-color var(--transition-base);
+}
+
+.dv-btn-outline:hover {
+  background: var(--color-lavender-soft);
+  border-color: var(--color-lavender);
+}
+
+/* Fila del propio usuario resaltada en el ranking (Dashboard y Grupos) */
+.leaderboard-item--me {
+  background: var(--color-cyan-soft);
+  border-radius: var(--radius-sm);
+}
+
+.leaderboard-item--me .leaderboard-item__name {
+  color: var(--color-cyan);
+  font-weight: 600;
+}
+
+.leaderboard-item--me .leaderboard-item__rank {
+  background: var(--color-cyan);
+  color: #04201b;
+}
+
+/* ---------- Modal de pronóstico ---------- */
+
+.dv-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(3, 7, 12, 0.72);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+  padding: 1rem;
+  animation: dv-fade-in var(--transition-base) ease-out;
+}
+
+@keyframes dv-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.dv-modal {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  padding: 1.5rem;
+  width: 100%;
+  max-width: 360px;
+  box-shadow: var(--shadow-card);
+  animation: dv-modal-in var(--transition-slow);
+}
+
+@keyframes dv-modal-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.dv-modal__title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1rem;
+  text-align: center;
+  margin-bottom: 1.1rem;
+}
+
+.dv-modal__title span {
+  color: var(--color-text-muted);
+  font-size: 0.8rem;
+  margin: 0 0.4rem;
+}
+
+.dv-modal__score-inputs {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-bottom: 1.1rem;
+}
+
+.dv-modal__score-inputs input {
+  width: 64px;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 1.3rem;
+  background: var(--color-surface-alt);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  color: var(--color-text);
+  padding: 0.5rem;
+  transition: border-color var(--transition-fast);
+}
+
+.dv-modal__score-inputs input:focus-visible {
+  border-color: var(--color-cyan);
+}
+
+.dv-modal__score-inputs span {
+  color: var(--color-text-muted);
+  font-family: var(--font-mono);
+}
+
+.dv-modal__actions {
+  display: flex;
+  gap: 0.6rem;
+}
+
+.dv-modal__actions .dv-btn-cyan {
+  width: auto;
+  flex: 1;
+  margin: 0;
+}
+
+.dv-btn-ghost {
+  flex: 1;
+  background: transparent;
+  border: 1px solid var(--color-border-strong);
+  color: var(--color-text-muted);
+  border-radius: var(--radius-sm);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color var(--transition-fast), color var(--transition-fast);
+}
+
+.dv-btn-ghost:hover {
+  border-color: var(--color-lavender);
+  color: var(--color-lavender);
+}
+
+.dv-btn-danger {
+  flex: 1;
+  padding: 0.6rem 1.2rem;
+  background: var(--color-danger);
+  color: #2b0a0f;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity var(--transition-fast);
+}
+
+.dv-btn-danger:hover:not(:disabled) {
+  opacity: 0.85;
+}
+
+.dv-btn-danger:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.dv-modal__actions .dv-btn-danger {
+  width: auto;
+  margin: 0;
+}
+
+.dv-modal__detail {
+  font-size: 0.82rem;
+  color: var(--color-text-muted);
+  text-align: center;
+  margin-bottom: 1.1rem;
+  line-height: 1.5;
+}
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 1100px) {
+  .dv-rail {
+    display: none;
+  }
+}
+
+@media (max-width: 900px) {
+  .dv-cols {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 720px) {
+  .dv-shell {
+    flex-direction: column;
+  }
+
+  .dv-sidebar {
+    position: static;
+    height: auto;
+    width: 100%;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.85rem 1rem;
+    gap: 0.75rem;
+  }
+
+  .dv-logo {
+    margin-bottom: 0;
+  }
+
+  .dv-profile {
+    display: none;
+  }
+
+  .dv-nav {
+    flex-direction: row;
+    margin-top: 0;
+  }
+
+  .dv-nav-link {
+    border-left: none;
+    border-bottom: 2px solid transparent;
+  }
+
+  .dv-nav-link--active {
+    border-left-color: transparent;
+    border-bottom-color: var(--color-cyan);
+  }
+
+  .dv-logout {
+    margin-top: 0;
+  }
+
+  .dv-main {
+    padding: 1.25rem;
+  }
+
+  .dv-feature-matchup {
+    gap: 0.9rem;
+  }
+
+  .dv-feature-team {
+    font-size: 1.1rem;
+  }
+
+  .dv-feature-clock {
+    font-size: 1.6rem;
+  }
+}

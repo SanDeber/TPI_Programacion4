@@ -1,14 +1,20 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import logo from "../assets/logo.png";
 import { useAuth } from "../context/AuthContext";
+import LeaderboardItem from "../components/LeaderboardItem";
+import Sidebar from "../components/Sidebar";
+import PredictionBadge from "../components/PredictionBadge";
+import PredictModal from "../components/PredictModal";
+import TeamBadge from "../components/TeamBadge";
+import { getDisplayName, getInitials } from "../utils/profile";
+import { formatTime, formatFullMeta, groupByDay } from "../utils/dateFormat";
 import {
   fetchDashboardStats,
-  fetchActiveMatchday,
-  fetchUpcomingMatches,
+  fetchJornadaActivaPartidos,
+  fetchPreviousMatchday,
+  fetchRecentPerformance,
   fetchRecentPredictions,
   fetchLeaderboard,
-  fetchSeasonForm,
 } from "../api/dashboardService";
 
 // ─── Helpers ────────────────────────────────────────────────
@@ -20,94 +26,100 @@ function getGreeting() {
   return "Buenas noches";
 }
 
-function getDisplayName(token) {
-  if (!token) return "Jugador";
-  try {
-    const base64 = token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
-    const { sub = "" } = JSON.parse(atob(base64));
-    const raw = sub.split("@")[0].replace(/[._-]/g, " ");
-    return raw.charAt(0).toUpperCase() + raw.slice(1);
-  } catch {
-    return "Jugador";
-  }
+function pad(n) {
+  return String(n).padStart(2, "0");
 }
 
-function formatDate(iso) {
-  const d = new Date(iso);
-  const day = d.toLocaleDateString("es-AR", { weekday: "short", day: "numeric", month: "short" });
-  const time = d.toLocaleTimeString("es-AR", { hour: "2-digit", minute: "2-digit" });
-  return { day, time };
+// Cuenta regresiva en vivo hacia targetDate (tickea cada segundo).
+function useCountdown(targetDate) {
+  const [now, setNow] = useState(() => Date.now());
+
+  useEffect(() => {
+    if (!targetDate) return;
+    const interval = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(interval);
+  }, [targetDate]);
+
+  if (!targetDate) return null;
+
+  const diffMs = targetDate.getTime() - now;
+  if (diffMs <= 0) return { closed: true, label: "00:00:00" };
+
+  const totalSeconds = Math.floor(diffMs / 1000);
+  const h = Math.floor(totalSeconds / 3600);
+  const m = Math.floor((totalSeconds % 3600) / 60);
+  const s = totalSeconds % 60;
+  return { closed: false, label: `${pad(h)}:${pad(m)}:${pad(s)}` };
 }
 
-// ─── Sub-components ──────────────────────────────────────────
+// ─── Sub-componentes ────────────────────────────────────────
 
-function StatusBadge({ status }) {
-  const config = {
-    UPCOMING: { label: "Próximo",    cls: "upcoming" },
-    LIVE:     { label: "En vivo",    cls: "live"     },
-    FINISHED: { label: "Finalizado", cls: "finished" },
-  };
-  const { label, cls } = config[status] ?? { label: status, cls: "upcoming" };
-  return <span className={`status-badge status-badge--${cls}`}>{label}</span>;
-}
-
-const RANK_CLASS = ["", "gold", "silver", "bronze"];
-
-function LeaderboardItem({ entry }) {
-  const rankCls = RANK_CLASS[entry.rank] ?? "";
+function PerfBar({ label, count, total, tone }) {
+  const pct = total > 0 ? Math.round((count / total) * 100) : 0;
   return (
-    <div className="leaderboard-item">
-      <span className={`leaderboard-item__rank${rankCls ? ` leaderboard-item__rank--${rankCls}` : ""}`}>
-        #{entry.rank}
-      </span>
-      <span className="leaderboard-item__name">{entry.name}</span>
-      <span className="leaderboard-item__points">{entry.points}</span>
+    <div className="dv-perf-row">
+      <span className="dv-perf-label">{label}</span>
+      <div className="dv-perf-bar-bg">
+        <div className={`dv-perf-bar dv-perf-bar--${tone}`} style={{ width: `${pct}%` }} />
+      </div>
+      <span className="dv-perf-count">{count}</span>
     </div>
   );
 }
 
 // ─── Page ────────────────────────────────────────────────────
 
+const EMPTY_JORNADA_ACTIVA = { jornada: null, featured: null, pending: [] };
+
 export default function DashboardPage() {
-  const { token, logout } = useAuth();
+  const { token, rol } = useAuth();
+  const isAdmin = rol === "ROLE_ADMIN";
   const navigate = useNavigate();
 
-  const [stats, setStats]               = useState(null);
-  const [matchday, setMatchday]         = useState(null);
-  const [upcomingMatches, setUpcoming]  = useState([]);
-  const [predictions, setPredictions]   = useState([]);
-  const [leaderboard, setLeaderboard]   = useState([]);
-  const [seasonForm, setSeasonForm]     = useState([]);
-  const [loading, setLoading]           = useState(true);
+  const [stats, setStats] = useState(null);
+  const [jornadaActiva, setJornadaActiva] = useState(EMPTY_JORNADA_ACTIVA);
+  const [previousMatchday, setPreviousMatchday] = useState(null);
+  const [performance, setPerformance] = useState(null);
+  const [lastPredictions, setLastPredictions] = useState([]);
+  const [leaderboard, setLeaderboard] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [predictTarget, setPredictTarget] = useState(null);
 
-  const displayName = getDisplayName(token);
-  const greeting    = getGreeting();
+  async function loadDashboard() {
+    try {
+      const [s, jornadaData, prev, perf, last, lb] = await Promise.all([
+        fetchDashboardStats(),
+        fetchJornadaActivaPartidos(),
+        fetchPreviousMatchday(),
+        fetchRecentPerformance(),
+        fetchRecentPredictions(3),
+        fetchLeaderboard(),
+      ]);
+      setStats(s);
+      setJornadaActiva(jornadaData);
+      setPreviousMatchday(prev);
+      setPerformance(perf);
+      setLastPredictions(last);
+      setLeaderboard(lb);
+    } catch (err) {
+      console.error("Error al cargar el dashboard:", err);
+    } finally {
+      setLoading(false);
+    }
+  }
 
   useEffect(() => {
-    async function load() {
-      try {
-        const [s, m, u, p, l, f] = await Promise.all([
-          fetchDashboardStats(),
-          fetchActiveMatchday(),
-          fetchUpcomingMatches(),
-          fetchRecentPredictions(),
-          fetchLeaderboard(),
-          fetchSeasonForm(),
-        ]);
-        setStats(s);
-        setMatchday(m);
-        setUpcoming(u);
-        setPredictions(p);
-        setLeaderboard(l);
-        setSeasonForm(f);
-      } catch (err) {
-        console.error("Error al cargar el dashboard:", err);
-      } finally {
-        setLoading(false);
-      }
-    }
-    load();
+    loadDashboard();
   }, []);
+
+  function handlePredictSaved() {
+    setPredictTarget(null);
+    loadDashboard();
+  }
+
+  const displayName = getDisplayName(token, stats?.username);
+  const firstName = displayName.split(" ")[0];
+  const countdown = useCountdown(jornadaActiva.featured?.closesAt ?? null);
 
   if (loading) {
     return (
@@ -117,181 +129,209 @@ export default function DashboardPage() {
     );
   }
 
-  const progressPct = matchday
-    ? Math.round((matchday.predictionsCount / matchday.matchesCount) * 100)
-    : 0;
-
   return (
-    <div className="dashboard-page">
-      {/* ── Header ── */}
-      <header className="dashboard-header">
-        <img src={logo} alt="Predigol" className="dashboard-header__logo" />
-        <button
-          className="dashboard-header__logout"
-          onClick={() => { logout(); navigate("/login", { replace: true }); }}
-        >
-          Cerrar sesión
-        </button>
-      </header>
+    <div className="dv-shell">
+      <Sidebar
+        displayName={displayName}
+        initials={getInitials(displayName)}
+        globalRank={stats?.globalRank}
+      />
 
-      {/* ── Body ── */}
-      <div className="dashboard-body">
+      {/* ── Main ── */}
+      <main className="dv-main">
+        <h1 className="dv-greeting">
+          {getGreeting()}, <span className="dv-greeting__accent">{firstName}</span>
+        </h1>
+        <p className="dv-sub">
+          {jornadaActiva.jornada
+            ? `Resumen de ${jornadaActiva.jornada.name}`
+            : "No hay una jornada activa en este momento"}
+        </p>
 
-        {/* ══ Main column ══ */}
-        <main className="dashboard-main">
-
-          {/* Greeting */}
-          <section>
-            <h1 className="dash-greeting__name">
-              {greeting},{" "}
-              <span className="dash-greeting__accent">{displayName}</span>
-            </h1>
-            <p className="dash-greeting__sub">
-              {matchday
-                ? `${matchday.name} · ${matchday.tournament} está activa`
-                : "No hay una fecha activa en este momento"}
-            </p>
-          </section>
-
-          {/* Stats */}
-          <div className="dash-stats">
-            <div className="stat-card">
-              <span className="stat-card__label">Puntos totales</span>
-              <span className="stat-card__value">{stats?.totalPoints ?? "—"}</span>
+        <div className="dv-cols">
+          {/* Columna izquierda */}
+          <div className="dv-col-left">
+            <div className="dv-card">
+              <p className="dv-eyebrow">
+                {previousMatchday
+                  ? `Jornada anterior — ${previousMatchday.jornada.name}, finalizada`
+                  : "Jornada anterior"}
+              </p>
+              {previousMatchday && previousMatchday.items.length > 0 ? (
+                previousMatchday.items.map((item) => (
+                  <div className="dv-pred-row" key={item.id}>
+                    <span className="dv-pred-teams">
+                      <TeamBadge {...item.homeTeam} size={18} /> vs{" "}
+                      <TeamBadge {...item.awayTeam} size={18} />
+                    </span>
+                    <span className="dv-pred-score">
+                      {item.actualHome} — {item.actualAway}
+                    </span>
+                    <PredictionBadge
+                      prediction={
+                        item.prediction
+                          ? { status: "FINISHED", points: item.prediction.points }
+                          : null
+                      }
+                    />
+                  </div>
+                ))
+              ) : (
+                <p className="dv-empty">Todavía no hay jornadas finalizadas.</p>
+              )}
             </div>
-            <div className="stat-card">
-              <span className="stat-card__label">Posición global</span>
-              <span className="stat-card__value stat-card__value--lavender">
-                #{stats?.globalRank ?? "—"}
-              </span>
-            </div>
-            <div className="stat-card">
-              <span className="stat-card__label">Resultados exactos</span>
-              <span className="stat-card__value stat-card__value--green">
-                {stats?.exactScores ?? "—"}
-              </span>
-            </div>
-            <div className="stat-card">
-              <span className="stat-card__label">Precisión</span>
-              <span className="stat-card__value">{stats?.accuracy ?? "—"}%</span>
+
+            <div className="dv-card">
+              <p className="dv-eyebrow">
+                Rendimiento reciente (últimos {performance?.total ?? 0})
+              </p>
+              <PerfBar
+                label="Exacto"
+                count={performance?.exacto ?? 0}
+                total={performance?.total ?? 0}
+                tone="green"
+              />
+              <PerfBar
+                label="Tendencia"
+                count={performance?.tendencia ?? 0}
+                total={performance?.total ?? 0}
+                tone="lavender"
+              />
+              <PerfBar
+                label="Sin acierto"
+                count={performance?.sinAcierto ?? 0}
+                total={performance?.total ?? 0}
+                tone="gray"
+              />
+
+              <div className="dv-divider" />
+              <p className="dv-eyebrow">Tus últimos pronósticos</p>
+              {lastPredictions.length > 0 ? (
+                lastPredictions.map((p) => (
+                  <div className="dv-pred-row" key={p.id}>
+                    <span className="dv-pred-teams">
+                      <TeamBadge {...p.homeTeam} size={18} /> vs{" "}
+                      <TeamBadge {...p.awayTeam} size={18} />
+                    </span>
+                    <span className="dv-pred-score">
+                      {p.predictedHome} — {p.predictedAway}
+                    </span>
+                    <PredictionBadge prediction={p} />
+                  </div>
+                ))
+              ) : (
+                <p className="dv-empty">Todavía no hiciste ningún pronóstico.</p>
+              )}
             </div>
           </div>
 
-          {/* Active Matchday */}
-          {matchday && (
-            <div className="dash-card">
-              <p className="dash-card__title">Fecha activa</p>
-              <div className="matchday-header">
-                <div>
-                  <p className="matchday-name">{matchday.name}</p>
-                  <p className="matchday-tournament">{matchday.tournament}</p>
+          {/* Columna derecha */}
+          <div className="dv-col-right">
+            {jornadaActiva.featured ? (
+              <div className="dv-feature-card">
+                <p className="dv-feature-eyebrow">
+                  Próximo partido{jornadaActiva.jornada ? ` · ${jornadaActiva.jornada.name}` : ""}
+                </p>
+                <div className="dv-feature-matchup">
+                  <div className="dv-feature-team">
+                    <TeamBadge {...jornadaActiva.featured.homeTeam} size={40} showName={false} />
+                    <div>{jornadaActiva.featured.homeTeam.name}</div>
+                  </div>
+                  <div className="dv-feature-vs">VS</div>
+                  <div className="dv-feature-team">
+                    <TeamBadge {...jornadaActiva.featured.awayTeam} size={40} showName={false} />
+                    <div>{jornadaActiva.featured.awayTeam.name}</div>
+                  </div>
                 </div>
-                <div className="matchday-count">
-                  <span className="matchday-count__number">
-                    {matchday.predictionsCount}/{matchday.matchesCount}
-                  </span>
-                  <span className="matchday-count__label">predicciones realizadas</span>
+                <div
+                  className={`dv-feature-clock${
+                    countdown?.closed ? " dv-feature-clock--closed" : ""
+                  }`}
+                >
+                  {countdown?.label ?? "—"}
                 </div>
+                <p className="dv-feature-clock-label">
+                  {countdown?.closed
+                    ? "pronósticos cerrados"
+                    : "para el cierre de pronósticos"}
+                </p>
+                <p className="dv-feature-meta">{formatFullMeta(jornadaActiva.featured.date)}</p>
+                {!isAdmin && (
+                  <button
+                    className="dv-btn-cyan"
+                    disabled={countdown?.closed}
+                    onClick={() => setPredictTarget(jornadaActiva.featured)}
+                  >
+                    {countdown?.closed ? "Cerrado" : "Predecir"}
+                  </button>
+                )}
               </div>
-              <div className="progress-bar">
-                <div className="progress-bar__fill" style={{ width: `${progressPct}%` }} />
+            ) : (
+              <div className="dv-card">
+                <p className="dv-empty">No hay un próximo partido pendiente.</p>
               </div>
-            </div>
-          )}
+            )}
 
-          {/* Upcoming Matches */}
-          {upcomingMatches.length > 0 && (
-            <div className="dash-card">
-              <p className="dash-card__title">Próximos partidos</p>
-              <div className="matches-grid">
-                {upcomingMatches.map((match) => {
-                  const { day, time } = formatDate(match.date);
-                  return (
-                    <div key={match.id} className="match-card">
-                      <div className="match-card__teams">
-                        <span className="match-card__team">{match.homeTeam.name}</span>
-                        <span className="match-card__vs">VS</span>
-                        <span className="match-card__team match-card__team--away">
-                          {match.awayTeam.name}
+            <div className="dv-card">
+              <p className="dv-eyebrow">Partidos de la fecha — pendientes de predecir</p>
+              {jornadaActiva.pending.length > 0 ? (
+                groupByDay(jornadaActiva.pending).map((group) => (
+                  <div key={group.label}>
+                    <p className="dv-day-label">{group.label}</p>
+                    {group.matches.map((match) => (
+                      <div className="dv-pending-row" key={match.id}>
+                        <span className="dv-pending-time">{formatTime(match.date)}</span>
+                        <span className="dv-pending-teams">
+                          <TeamBadge {...match.homeTeam} size={18} /> vs{" "}
+                          <TeamBadge {...match.awayTeam} size={18} />
                         </span>
-                      </div>
-                      <div className="match-card__meta">
-                        <span className="match-card__date">{day} · {time}</span>
-                        <span>{match.venue}</span>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-
-          {/* Your Predictions */}
-          {predictions.length > 0 && (
-            <div className="dash-card">
-              <p className="dash-card__title">Tus pronósticos</p>
-              <div className="predictions-list">
-                {predictions.map((pred) => (
-                  <div key={pred.id} className="prediction-item">
-                    <div className="prediction-item__match">
-                      <div className="prediction-item__teams">
-                        {pred.homeTeam} vs {pred.awayTeam}
-                      </div>
-                      <div className="prediction-item__score">
-                        Pron.: {pred.predictedHome}–{pred.predictedAway}
-                        {pred.status === "FINISHED" && pred.actualHome !== null && (
-                          <span className="result">
-                            {" "}· Resultado: {pred.actualHome}–{pred.actualAway}
-                          </span>
+                        {!isAdmin && (
+                          <button
+                            className="dv-pending-cta"
+                            onClick={() => setPredictTarget(match)}
+                          >
+                            Predecir
+                          </button>
                         )}
                       </div>
-                    </div>
-                    <StatusBadge status={pred.status} />
-                    <div
-                      className={`prediction-item__points${
-                        pred.points === null ? " prediction-item__points--pending" : ""
-                      }`}
-                    >
-                      {pred.points !== null ? `+${pred.points}` : "—"}
-                    </div>
+                    ))}
                   </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </main>
-
-        {/* ══ Sidebar ══ */}
-        <aside className="dashboard-sidebar">
-
-          {/* Leaderboard */}
-          <div className="dash-card">
-            <p className="dash-card__title">Tabla de posiciones</p>
-            <div className="leaderboard-list">
-              {leaderboard.map((entry) => (
-                <LeaderboardItem key={entry.rank} entry={entry} />
-              ))}
+                ))
+              ) : (
+                <p className="dv-empty">
+                  No te quedan partidos pendientes por predecir en esta fecha.
+                </p>
+              )}
             </div>
           </div>
+        </div>
+      </main>
 
-          {/* Season Form */}
-          <div className="dash-card">
-            <p className="dash-card__title">Rendimiento reciente</p>
-            <div className="form-chips">
-              {seasonForm.map((result, i) => (
-                <div
-                  key={i}
-                  className={`form-chip form-chip--${result.toLowerCase()}`}
-                  title={result === "W" ? "Victoria" : result === "D" ? "Empate" : "Derrota"}
-                >
-                  {result === "W" ? "G" : result === "D" ? "E" : "P"}
-                </div>
-              ))}
-            </div>
-          </div>
+      {/* ── Rail de posiciones ── */}
+      <aside className="dv-rail">
+        <p className="dv-rail-title">Posiciones</p>
+        <p className="dv-rail-sub">Ranking general</p>
+        <div className="dv-rail-list">
+          {leaderboard.map((entry) => (
+            <LeaderboardItem
+              key={entry.rank}
+              entry={entry}
+              highlight={Boolean(stats?.username) && entry.name === stats.username}
+            />
+          ))}
+        </div>
+        <button className="dv-btn-outline" onClick={() => navigate("/grupos")}>
+          Ir a grupo →
+        </button>
+      </aside>
 
-        </aside>
-      </div>
+      {predictTarget && (
+        <PredictModal
+          partido={predictTarget}
+          onClose={() => setPredictTarget(null)}
+          onSaved={handlePredictSaved}
+        />
+      )}
     </div>
   );
 }

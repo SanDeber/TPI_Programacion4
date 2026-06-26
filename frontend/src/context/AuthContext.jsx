@@ -50,6 +50,12 @@ export function AuthProvider({ children }) {
   // Devuelve la respuesta para que la página de Login pueda redirigir.
   async function login(email, password) {
     const data = await loginRequest(email, password);
+    // Escribimos localStorage ya mismo (no solo vía el useEffect de arriba):
+    // apiClient lee el token directo de localStorage, y si solo dependiéramos
+    // del useEffect, las primeras requests disparadas justo al navegar tras
+    // el login podrían salir sin token (el efecto corre después del commit).
+    localStorage.setItem(STORAGE_KEYS.token, data.token);
+    localStorage.setItem(STORAGE_KEYS.rol, data.rol);
     setToken(data.token);
     setRol(data.rol);
     return data;
@@ -60,6 +66,8 @@ export function AuthProvider({ children }) {
   // logueado automáticamente (no hace falta loguearse de nuevo).
   async function register(name, email, password) {
     const data = await registerRequest(name, email, password);
+    localStorage.setItem(STORAGE_KEYS.token, data.token);
+    localStorage.setItem(STORAGE_KEYS.rol, data.rol);
     setToken(data.token);
     setRol(data.rol);
     return data;
