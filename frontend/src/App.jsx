@@ -3,11 +3,13 @@ import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import DashboardPage from "./pages/DashboardPage";
 import AdminPage from "./pages/AdminPage";
+import GruposPage from "./pages/GruposPage";
+import PrediccionesPage from "./pages/PrediccionesPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 import "./styles/auth.css";
 import "./styles/home.css";
-import "./styles/dashboard.css";
+import "./styles/dashboard-v2.css";
 
 export default function App() {
   return (
@@ -19,6 +21,12 @@ export default function App() {
       {/* Rutas protegidas: requieren JWT válido */}
       <Route element={<ProtectedRoute />}>
         <Route path="/" element={<DashboardPage />} />
+      </Route>
+
+      {/* Rutas solo para USER: ADMIN redirige al Dashboard */}
+      <Route element={<ProtectedRoute forbiddenRol="ROLE_ADMIN" />}>
+        <Route path="/predicciones" element={<PrediccionesPage />} />
+        <Route path="/grupos" element={<GruposPage />} />
       </Route>
 
       {/* Rutas solo para ADMIN: redirige a "/" si el rol no es ROLE_ADMIN */}

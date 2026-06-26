@@ -6,6 +6,7 @@ import com.Programacion4.Prode.dto.request.UnirseRequestDto;
 import com.Programacion4.Prode.dto.response.GrupoResponseDto;
 import com.Programacion4.Prode.dto.response.LeaderboardResponseDto;
 import com.Programacion4.Prode.services.interfaces.IGrupoCreateService;
+import com.Programacion4.Prode.services.interfaces.IGruposGetService;
 import com.Programacion4.Prode.services.interfaces.ILeaderboardService;
 import com.Programacion4.Prode.services.interfaces.IUnirseAGrupoService;
 import jakarta.validation.Valid;
@@ -25,6 +26,7 @@ public class GrupoController {
     private final IGrupoCreateService createService;
     private final IUnirseAGrupoService unirseAGrupoService;
     private final ILeaderboardService leaderboardService;
+    private final IGruposGetService gruposGetService;
 
     @PostMapping
     @PreAuthorize("hasRole('USER')")
@@ -53,6 +55,22 @@ public class GrupoController {
                 BaseResponse.ok(
                     unirseAGrupoService.unirse(dto, email),
                         "Te uniste a un grupo con exito"
+                )
+        );
+    }
+
+    @GetMapping("/mis-grupos")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<BaseResponse<List<GrupoResponseDto>>> getMisGrupos(
+            Authentication authentication
+    ){
+
+        String email = authentication.getName();
+
+        return ResponseEntity.ok().body(
+                BaseResponse.ok(
+                        gruposGetService.misGrupos(email),
+                        "Tus grupos traidos con exito"
                 )
         );
     }

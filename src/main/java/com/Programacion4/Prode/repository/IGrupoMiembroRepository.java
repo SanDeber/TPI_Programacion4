@@ -7,4 +7,5 @@ import java.util.List;
 
 public interface IGrupoMiembroRepository extends JpaRepository<MiembrosGrupo, Long> {
     List<MiembrosGrupo> findByGrupoId(Long id);
+    List<MiembrosGrupo> findByUserId(Long userId);
 }
